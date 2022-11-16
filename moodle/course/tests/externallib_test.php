@@ -2141,11 +2141,12 @@ class core_course_externallib_testcase extends externallib_advanced_testcase {
                 $this->assertFalse($adminoptions->outcomes);
                 $this->assertFalse($adminoptions->badges);
                 $this->assertFalse($adminoptions->import);
+                $this->assertFalse($adminoptions->publish);
                 $this->assertFalse($adminoptions->reset);
                 $this->assertFalse($adminoptions->roles);
                 $this->assertFalse($adminoptions->editcompletion);
             } else {
-                $this->assertCount(14, $course['options']);
+                $this->assertCount(15, $course['options']);
                 $this->assertFalse($adminoptions->update);
                 $this->assertFalse($adminoptions->filters);
                 $this->assertFalse($adminoptions->reports);
@@ -2157,6 +2158,7 @@ class core_course_externallib_testcase extends externallib_advanced_testcase {
                 $this->assertFalse($adminoptions->outcomes);
                 $this->assertTrue($adminoptions->badges);
                 $this->assertFalse($adminoptions->import);
+                $this->assertFalse($adminoptions->publish);
                 $this->assertFalse($adminoptions->reset);
                 $this->assertFalse($adminoptions->roles);
                 $this->assertFalse($adminoptions->editcompletion);

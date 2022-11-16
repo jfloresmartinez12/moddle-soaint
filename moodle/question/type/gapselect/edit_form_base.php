@@ -40,8 +40,7 @@ class qtype_gapselect_edit_form_base extends question_edit_form {
         'b',
         'i',
         'em',
-        'strong',
-        'span',
+        'strong'
     );
 
     /** @var string regex to match HTML open tags. */
@@ -56,7 +55,7 @@ class qtype_gapselect_edit_form_base extends question_edit_form {
     /**
      * Vaidate some input to make sure it does not contain any tags other than
      * $this->allowedhtmltags.
-     * @param string $text the input to validate.
+     * @param unknown_type $text the input to validate.
      * @return string any validation errors.
      */
     protected function get_illegal_tag_error($text) {

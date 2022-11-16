@@ -50,12 +50,14 @@ class tags_action_column extends action_column_base {
      * @param string $rowclasses
      */
     protected function display_content($question, $rowclasses) {
+        global $DB;
+
         if (\core_tag_tag::is_enabled('core_question', 'question') &&
                 question_has_capability_on($question, 'view')) {
 
             $cantag = question_has_capability_on($question, 'tag');
             $qbank = $this->qbank;
-            $url = new \moodle_url($qbank->edit_question_url($question->id));
+            $url = $qbank->edit_question_url($question->id);
             $editingcontext = $qbank->get_most_specific_context();
 
             $this->print_tag_icon($question->id, $url, $cantag, $editingcontext->id);
@@ -66,11 +68,11 @@ class tags_action_column extends action_column_base {
      * Build and print the tags icon.
      *
      * @param int $id The question ID.
-     * @param \moodle_url $url Editing question url.
+     * @param string $url Editing question url.
      * @param bool $cantag Whether the user can tag questions or not.
      * @param int $contextid Question category context ID.
      */
-    protected function print_tag_icon($id, \moodle_url $url, $cantag, $contextid) {
+    protected function print_tag_icon($id, $url, $cantag, $contextid) {
         global $OUTPUT;
 
         $params = [

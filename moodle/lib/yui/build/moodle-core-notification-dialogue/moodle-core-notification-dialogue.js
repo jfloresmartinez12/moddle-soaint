@@ -45,8 +45,7 @@ var DIALOGUE_NAME = 'Moodle dialogue',
     MENUBAR_SELECTOR = '[role=menubar]',
     DOT = '.',
     HAS_ZINDEX = 'moodle-has-zindex',
-    CAN_RECEIVE_FOCUS_SELECTOR = 'input:not([type="hidden"]), a[href], button, textarea, select, [tabindex]',
-    FORM_SELECTOR = 'form';
+    CAN_RECEIVE_FOCUS_SELECTOR = 'input:not([type="hidden"]), a[href], button, textarea, select, [tabindex]';
 
 /**
  * A re-usable dialogue box with Moodle classes applied.
@@ -67,7 +66,7 @@ DIALOGUE = function(config) {
     config.notificationBase =
         Y.Node.create('<div class="' + CSS.BASE + '">')
               .append(Y.Node.create('<div id="' + id + '" role="dialog" ' +
-                                    'aria-labelledby="' + id + '-header-text" class="' + CSS.WRAP + '"  aria-live="polite"></div>')
+                                    'aria-labelledby="' + id + '-header-text" class="' + CSS.WRAP + '"></div>')
               .append(Y.Node.create('<div id="' + id + '-header-text" class="' + CSS.HEADER + ' yui3-widget-hd"></div>'))
               .append(Y.Node.create('<div class="' + CSS.BODY + ' yui3-widget-bd"></div>'))
               .append(Y.Node.create('<div class="' + CSS.FOOTER + ' yui3-widget-ft"></div>')));
@@ -103,20 +102,6 @@ Y.extend(DIALOGUE, Y.Panel, {
      * @type Array
      */
     _hiddenSiblings: null,
-
-    /**
-     * Hide the modal only if it doesn't contain a form.
-     *
-     * @method hideIfNotForm
-     */
-    hideIfNotForm: function() {
-        var bb = this.get('boundingBox'),
-            formElement = bb.one(FORM_SELECTOR);
-
-        if (formElement === null) {
-            this.hide();
-        }
-    },
 
     /**
      * Initialise the dialogue.
@@ -177,7 +162,7 @@ Y.extend(DIALOGUE, Y.Panel, {
             var maskNode = this.get('maskNode');
             if (this._currentMaskNodeId !== maskNode.get('_yuid')) {
                 this._currentMaskNodeId = maskNode.get('_yuid');
-                maskNode.on('click', this.hideIfNotForm, this);
+                maskNode.on('click', this.hide, this);
             }
 
             if (bb.getStyle('position') !== 'fixed') {

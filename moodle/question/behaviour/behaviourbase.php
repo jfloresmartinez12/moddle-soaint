@@ -392,20 +392,9 @@ abstract class question_behaviour {
         $previouscomment = $this->qa->get_last_behaviour_var('comment');
         $newcomment = $pendingstep->get_behaviour_var('comment');
 
-        // When the teacher leaves the comment empty, $previouscomment is an empty string but $newcomment is null,
-        // therefore they are not equal to each other. That's why checking if $previouscomment != $newcomment is not enough.
-        if (($previouscomment != $newcomment) && !(is_null($previouscomment) && html_is_blank($newcomment))) {
-            // The comment has changed.
+        if (is_null($previouscomment) && !html_is_blank($newcomment) ||
+                $previouscomment != $newcomment) {
             return false;
-        }
-
-        if (!html_is_blank($newcomment)) {
-            // Check comment format.
-            $previouscommentformat = $this->qa->get_last_behaviour_var('commentformat');
-            $newcommentformat = $pendingstep->get_behaviour_var('commentformat');
-            if ($previouscommentformat != $newcommentformat) {
-                return false;
-            }
         }
 
         // So, now we know the comment is the same, so check the mark, if present.
@@ -550,13 +539,13 @@ abstract class question_behaviour {
 
     /**
      * @return string a summary of a manual comment action.
-     * @param question_attempt_step $step
+     * @param unknown_type $step
      */
     protected function summarise_manual_comment($step) {
         $a = new stdClass();
         if ($step->has_behaviour_var('comment')) {
-            $comment = question_utils::to_plain_text($step->get_behaviour_var('comment'),
-                    $step->get_behaviour_var('commentformat'));
+            list($comment, $commentformat, $commentstep) = $this->qa->get_manual_comment();
+            $comment = question_utils::to_plain_text($comment, $commentformat);
             $a->comment = shorten_text($comment, 200);
         } else {
             $a->comment = '';

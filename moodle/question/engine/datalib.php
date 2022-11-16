@@ -100,9 +100,10 @@ class question_engine_data_mapper {
             $stepdata[] = $this->insert_question_attempt($qa, $quba->get_owning_context());
         }
 
-        $this->insert_all_step_data($this->combine_step_data($stepdata));
-
-        $quba->set_observer(new question_engine_unit_of_work($quba));
+        $stepdata = call_user_func_array('array_merge', $stepdata);
+        if ($stepdata) {
+            $this->insert_all_step_data($stepdata);
+        }
     }
 
     /**
@@ -147,7 +148,7 @@ class question_engine_data_mapper {
             $stepdata[] = $this->insert_question_attempt_step($step, $record->id, $seq, $context);
         }
 
-        return $this->combine_step_data($stepdata);
+        return call_user_func_array('array_merge', $stepdata);
     }
 
     /**
@@ -166,22 +167,6 @@ class question_engine_data_mapper {
         $record->timecreated = $step->get_timecreated();
         $record->userid = $step->get_user_id();
         return $record;
-    }
-
-    /**
-     * Take an array of arrays, and flatten it, even if the outer array is empty.
-     *
-     * Only public so it can be called from the unit of work. Not part of the
-     * public API of this class.
-     *
-     * @param array $stepdata array of zero or more arrays.
-     * @return array made by concatenating all the separate arrays.
-     */
-    public function combine_step_data(array $stepdata): array {
-        if (empty($stepdata)) {
-            return [];
-        }
-        return call_user_func_array('array_merge', $stepdata);
     }
 
     /**
@@ -1594,7 +1579,9 @@ class question_engine_unit_of_work implements question_usage_observer {
             $dm->update_questions_usage_by_activity($this->quba);
         }
 
-        $dm->insert_all_step_data($dm->combine_step_data($stepdata));
+        if ($stepdata) {
+            $dm->insert_all_step_data(call_user_func_array('array_merge', $stepdata));
+        }
 
         $this->stepsdeleted = array();
         $this->stepsmodified = array();

@@ -102,7 +102,6 @@ class core_comment_external extends external_api {
         if ($comments === false) {
             throw new moodle_exception('nopermissions', 'error', '', 'view comments');
         }
-        $options = array('blanktarget' => true);
 
         foreach ($comments as $key => $comment) {
 
@@ -111,8 +110,7 @@ class core_comment_external extends external_api {
                                                                                                  $context->id,
                                                                                                  $params['component'],
                                                                                                  '',
-                                                                                                 0,
-                                                                                                 $options);
+                                                                                                 0);
         }
 
         $results = array(

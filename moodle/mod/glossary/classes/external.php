@@ -217,10 +217,8 @@ class mod_glossary_external extends external_api {
             foreach ($glossaries as $glossary) {
                 $context = context_module::instance($glossary->coursemodule);
                 $glossary->name = external_format_string($glossary->name, $context->id);
-                $options = array('noclean' => true);
-                list($glossary->intro, $glossary->introformat) =
-                    external_format_text($glossary->intro, $glossary->introformat, $context->id, 'mod_glossary', 'intro', null,
-                        $options);
+                list($glossary->intro, $glossary->introformat) = external_format_text($glossary->intro, $glossary->introformat,
+                    $context->id, 'mod_glossary', 'intro', null);
                 $glossary->introfiles = external_util::get_area_files($context->id, 'mod_glossary', 'intro', false, false);
 
                 // Make sure we have a number of entries per page.

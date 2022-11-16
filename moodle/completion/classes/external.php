@@ -75,7 +75,6 @@ class core_completion_external extends external_api {
 
         $context = context_module::instance($cmid);
         self::validate_context($context);
-        require_capability('moodle/course:togglecompletion', $context);
 
         list($course, $cm) = get_course_and_cm_from_cmid($cmid);
 

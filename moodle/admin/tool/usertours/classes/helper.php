@@ -497,12 +497,6 @@ class helper {
             return;
         }
 
-        if (in_array($PAGE->pagelayout, ['maintenance', 'print', 'redirect'])) {
-            // Do not try to show user tours inside iframe, in maintenance mode,
-            // when printing, or during redirects.
-            return;
-        }
-
         if (self::$bootstrapped) {
             return;
         }

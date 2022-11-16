@@ -315,28 +315,6 @@ class badge {
                 $crit->make_clone($new);
             }
 
-            // Copy endorsement.
-            $endorsement = $this->get_endorsement();
-            if ($endorsement) {
-                unset($endorsement->id);
-                $endorsement->badgeid = $new;
-                $newbadge->save_endorsement($endorsement);
-            }
-
-            // Copy alignments.
-            $alignments = $this->get_alignments();
-            foreach ($alignments as $alignment) {
-                unset($alignment->id);
-                $alignment->badgeid = $new;
-                $newbadge->save_alignment($alignment);
-            }
-
-            // Copy related badges.
-            $related = $this->get_related_badges(true);
-            if (!empty($related)) {
-                $newbadge->add_related_badges(array_keys($related));
-            }
-
             // Trigger event, badge duplicated.
             $eventparams = array('objectid' => $new, 'context' => $PAGE->context);
             $event = \core\event\badge_duplicated::create($eventparams);
@@ -860,7 +838,7 @@ class badge {
      *
      * @return array List content competencies.
      */
-    public function get_alignments() {
+    public function get_alignment() {
         global $DB;
         return $DB->get_records('badge_competencies', array('badgeid' => $this->id));
     }
@@ -1066,16 +1044,13 @@ function badges_calculate_message_schedule($schedule) {
 
     switch ($schedule) {
         case BADGE_MESSAGE_DAILY:
-            $tomorrow = new DateTime("1 day", core_date::get_server_timezone_object());
-            $nextcron = $tomorrow->getTimestamp();
+            $nextcron = time() + 60 * 60 * 24;
             break;
         case BADGE_MESSAGE_WEEKLY:
-            $nextweek = new DateTime("1 week", core_date::get_server_timezone_object());
-            $nextcron = $nextweek->getTimestamp();
+            $nextcron = time() + 60 * 60 * 24 * 7;
             break;
         case BADGE_MESSAGE_MONTHLY:
-            $nextmonth = new DateTime("1 month", core_date::get_server_timezone_object());
-            $nextcron = $nextmonth->getTimestamp();
+            $nextcron = time() + 60 * 60 * 24 * 7 * 30;
             break;
     }
 

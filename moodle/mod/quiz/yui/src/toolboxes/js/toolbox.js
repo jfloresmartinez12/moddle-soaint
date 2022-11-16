@@ -62,7 +62,6 @@ var CSS = {
         NUMQUESTIONS: '.numberofquestions',
         PAGECONTENT: 'div#page-content',
         PAGELI: 'li.page',
-        SECTIONLI: 'li.section',
         SECTIONUL: 'ul.section',
         SECTIONFORM: '.instancesectioncontainer form',
         SECTIONINPUT: 'input[name=section]',

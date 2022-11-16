@@ -406,11 +406,7 @@ function lesson_user_outline($course, $user, $mod, $lesson) {
                 $return->info = get_string("nolessonattempts", "lesson");
             }
         } else {
-            if (!$grade->hidden || has_capability('moodle/grade:viewhidden', context_course::instance($course->id))) {
-                $return->info = get_string('grade') . ': ' . $grade->str_long_grade;
-            } else {
-                $return->info = get_string('grade') . ': ' . get_string('hidden', 'grades');
-            }
+            $return->info = get_string("grade") . ': ' . $grade->str_long_grade;
 
             // Datesubmitted == time created. dategraded == time modified or time overridden.
             // If grade was last modified by the user themselves use date graded. Otherwise use date submitted.
@@ -467,18 +463,13 @@ function lesson_user_complete($course, $user, $mod, $lesson) {
                 $status = get_string("nolessonattempts", "lesson");
             }
         } else {
-            if (!$grade->hidden || has_capability('moodle/grade:viewhidden', context_course::instance($course->id))) {
-                $status = get_string("grade") . ': ' . $grade->str_long_grade;
-            } else {
-                $status = get_string('grade') . ': ' . get_string('hidden', 'grades');
-            }
+            $status = get_string("grade") . ': ' . $grade->str_long_grade;
         }
 
         // Display the grade or lesson status if there isn't one.
         echo $OUTPUT->container($status);
 
-        if ($grade->str_feedback &&
-            (!$grade->hidden || has_capability('moodle/grade:viewhidden', context_course::instance($course->id)))) {
+        if ($grade->str_feedback) {
             echo $OUTPUT->container(get_string('feedback').': '.$grade->str_feedback);
         }
     }
@@ -1674,14 +1665,6 @@ function mod_lesson_core_calendar_provide_event_action(calendar_event $event,
         return null;
     }
 
-    $completion = new \completion_info($cm->get_course());
-
-    $completiondata = $completion->get_data($cm, false, $userid);
-
-    if ($completiondata->completionstate != COMPLETION_INCOMPLETE) {
-        return null;
-    }
-
     $lesson = new lesson($DB->get_record('lesson', array('id' => $cm->instance), '*', MUST_EXIST));
 
     if ($lesson->count_user_retries($userid)) {
@@ -1691,12 +1674,6 @@ function mod_lesson_core_calendar_provide_event_action(calendar_event $event,
 
     // Apply overrides.
     $lesson->update_effective_access($userid);
-
-    if (!$lesson->is_participant($userid)) {
-        // If the user is not a participant then they have
-        // no action to take. This will filter out the events for teachers.
-        return null;
-    }
 
     return $factory->create_instance(
         get_string('startlesson', 'lesson'),

@@ -120,16 +120,12 @@ class renderer_base {
                              'userdate' => array($userdatehelper, 'transform'),
                          );
 
-            $this->mustache = new \core\output\mustache_engine(array(
+            $this->mustache = new Mustache_Engine(array(
                 'cache' => $cachedir,
                 'escape' => 's',
                 'loader' => $loader,
                 'helpers' => $helpers,
-                'pragmas' => [Mustache_Engine::PRAGMA_BLOCKS],
-                // Don't allow the JavaScript helper to be executed from within another
-                // helper. If it's allowed it can be used by users to inject malicious
-                // JS into the page.
-                'blacklistednestedhelpers' => ['js']));
+                'pragmas' => [Mustache_Engine::PRAGMA_BLOCKS]));
 
         }
 
@@ -2610,16 +2606,9 @@ class core_renderer extends renderer_base {
 
         $src = $userpicture->get_url($this->page, $this);
 
-        $attributes = array('src' => $src, 'class' => $class, 'width' => $size, 'height' => $size);
+        $attributes = array('src'=>$src, 'alt'=>$alt, 'title'=>$alt, 'class'=>$class, 'width'=>$size, 'height'=>$size);
         if (!$userpicture->visibletoscreenreaders) {
             $attributes['role'] = 'presentation';
-            $alt = '';
-            $attributes['aria-hidden'] = 'true';
-        }
-
-        if (!empty($alt)) {
-            $attributes['alt'] = $alt;
-            $attributes['title'] = $alt;
         }
 
         // get the image html output fisrt
@@ -2893,8 +2882,8 @@ EOD;
             $output .= $this->header();
         }
 
-        $message = '<p class="errormessage">' . s($message) . '</p>'.
-                '<p class="errorcode"><a href="' . s($moreinfourl) . '">' .
+        $message = '<p class="errormessage">' . $message . '</p>'.
+                '<p class="errorcode"><a href="' . $moreinfourl . '">' .
                 get_string('moreinformation') . '</a></p>';
         if (empty($CFG->rolesactive)) {
             $message .= '<p class="errormessage">' . get_string('installproblem', 'error') . '</p>';
@@ -3498,7 +3487,7 @@ EOD;
                         // Process this as a link item.
                         $pix = null;
                         if (isset($value->pix) && !empty($value->pix)) {
-                            $pix = new pix_icon($value->pix, '', null, array('class' => 'iconsmall'));
+                            $pix = new pix_icon($value->pix, $value->title, null, array('class' => 'iconsmall'));
                         } else if (isset($value->imgsrc) && !empty($value->imgsrc)) {
                             $value->title = html_writer::img(
                                 $value->imgsrc,
@@ -3589,9 +3578,6 @@ EOD;
             }
             if ($item->hidden) {
                 $attributes['class'] = 'dimmed_text';
-            }
-            if ($item->is_last()) {
-                $attributes['aria-current'] = 'page';
             }
             $content = html_writer::tag('span', $content, array('itemprop' => 'title'));
             $content = html_writer::link($item->action, $content, $attributes);
@@ -4152,10 +4138,10 @@ EOD;
     }
 
     /**
-     * Returns the moodle_url for the favicon.
+     * Returns the URL for the favicon.
      *
      * @since Moodle 2.5.1 2.6
-     * @return moodle_url The moodle_url for the favicon
+     * @return string The favicon URL
      */
     public function favicon() {
         return $this->image_url('favicon', 'theme');

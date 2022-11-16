@@ -71,7 +71,7 @@ define(['jquery', 'core/ajax'], function($, Ajax) {
         var args = {};
 
         if (typeof userid !== 'undefined') {
-            args.userid = userid;
+            args.limit = limit;
         }
 
         if (typeof limit !== 'undefined') {

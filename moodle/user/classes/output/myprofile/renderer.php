@@ -100,15 +100,11 @@ class renderer extends \plugin_renderer_base {
         $content = $node->content;
         $classes = $node->classes;
         if (!empty($content)) {
-            if ($header) {
-                // There is some content to display below this make this a header.
-                $return = \html_writer::tag('dt', $header);
-                $return .= \html_writer::tag('dd', $content);
+            // There is some content to display below this make this a header.
+            $return = \html_writer::tag('dt', $header);
+            $return .= \html_writer::tag('dd', $content);
 
-                $return = \html_writer::tag('dl', $return);
-            } else {
-                $return = \html_writer::span($content);
-            }
+            $return = \html_writer::tag('dl', $return);
             if ($classes) {
                 $return = \html_writer::tag('li', $return, array('class' => 'contentnode ' . $classes));
             } else {

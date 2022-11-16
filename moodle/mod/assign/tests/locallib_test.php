@@ -1678,9 +1678,16 @@ class mod_assign_locallib_testcase extends advanced_testcase {
         assign::cron();
 
         $events = $sink->get_events();
+        // Notification has been marked as read, so now first event should be a 'notification_viewed' one. For student.
         $event = reset($events);
+        $this->assertInstanceOf('\core\event\notification_viewed', $event);
+        $this->assertEquals($student->id, $event->userid);
+
+        // And next event should be the 'notification_sent' one. For teacher.
+        $event = $events[1];
         $this->assertInstanceOf('\core\event\notification_sent', $event);
         $this->assertEquals($assign->get_course()->id, $event->other['courseid']);
+        $this->assertEquals($teacher->id, $event->userid);
         $sink->close();
     }
 
@@ -3986,75 +3993,5 @@ Anchor link 2:<a title=\"bananas\" href=\"../logo-240x60.gif\">Link text</a>
         $this->assertNotContains(get_string('submissionslocked', 'assign'), $output2);
         // Check that submissionstatus_marked 'Graded' message does appear for student.
         $this->assertContains(get_string('submissionstatus_marked', 'assign'), $output2);
-    }
-
-    /**
-     * Test showing group override duedate for admin
-     */
-    public function test_view_group_override() {
-        global $DB, $PAGE;
-
-        $this->resetAfterTest();
-        $course = $this->getDataGenerator()->create_course();
-
-        $group1 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
-        $group2 = $this->getDataGenerator()->create_group(['courseid' => $course->id]);
-
-        $student1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
-        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'teacher');
-        groups_add_member($group1, $student1);
-        groups_add_member($group1, $teacher);
-
-        $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student');
-        groups_add_member($group2, $student2);
-
-        $assign = $this->create_instance($course, [
-                'groupmode' => 1,
-                'duedate' => 1558999899,
-            ]);
-        $instance = $assign->get_instance();
-
-        // Overrides for two groups.
-        $overrides = [
-            (object) [
-                'assignid' => $instance->id,
-                'groupid' => $group1->id,
-                'userid' => null,
-                'sortorder' => 1,
-                'duedate' => 1568990258,
-            ],
-            (object) [
-                'assignid' => $instance->id,
-                'groupid' => $group2->id,
-                'userid' => null,
-                'sortorder' => 2,
-                'duedate' => 1559900258,
-            ],
-        ];
-
-        foreach ($overrides as &$override) {
-            $override->id = $DB->insert_record('assign_overrides', $override);
-        }
-
-        $currenturl = new moodle_url('/mod/assign/view.php', array('id' => $assign->get_course_module()->id));
-        $PAGE->set_url($currenturl);
-        $output1 = '';
-        // Other users should see duedate of the assignment.
-        $this->setUser($student2);
-        $summary = $assign->get_assign_grading_summary_renderable($group1->id);
-        $output1 .= $assign->get_renderer()->render($summary);
-        $this->assertContains('Tuesday, 28 May 2019, 7:31 AM', $output1, '', true);
-
-        $output2 = '';
-        // Teacher should be able to see all group override duedate.
-        $this->setUser($teacher);
-        $summary = $assign->get_assign_grading_summary_renderable($group1->id);
-        $output2 .= $assign->get_renderer()->render($summary);
-        $this->assertContains('Friday, 20 September 2019, 10:37 PM', $output2, '', true);
-
-        $output3 = '';
-        $summary = $assign->get_assign_grading_summary_renderable($group2->id);
-        $output3 .= $assign->get_renderer()->render($summary);
-        $this->assertContains('Friday, 7 June 2019, 5:37 PM', $output3, '', true);
     }
 }

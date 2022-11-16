@@ -156,7 +156,7 @@ function(
             savePreferences(loggedInUserId, preferences);
         });
 
-        settingsContainer.on('change', SELECTORS.PRIVACY_PREFERENCE, function(e) {
+        settingsContainer.on(CustomEvents.events.activate, SELECTORS.PRIVACY_PREFERENCE, function(e) {
             var newValue = $(e.target).val();
             var preferences = [
                 {

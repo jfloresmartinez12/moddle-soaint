@@ -1925,23 +1925,10 @@ function feedback_save_tmp_values($feedbackcompletedtmp, $feedbackcompleted) {
         //check if there are depend items
         $item = $DB->get_record('feedback_item', array('id'=>$value->item));
         if ($item->dependitem > 0 && isset($allitems[$item->dependitem])) {
-            $ditem = $allitems[$item->dependitem];
-            while ($ditem !== null) {
-                $check = feedback_compare_item_value($tmpcplid,
-                                            $ditem,
-                                            $item->dependvalue,
-                                            true);
-                if (!$check) {
-                    break;
-                }
-                if ($ditem->dependitem > 0 && isset($allitems[$ditem->dependitem])) {
-                    $item = $ditem;
-                    $ditem = $allitems[$ditem->dependitem];
-                } else {
-                    $ditem = null;
-                }
-            }
-
+            $check = feedback_compare_item_value($tmpcplid,
+                                        $allitems[$item->dependitem],
+                                        $item->dependvalue,
+                                        true);
         } else {
             $check = true;
         }
@@ -2569,7 +2556,7 @@ function feedback_send_email($cm, $feedback, $course, $user, $completed = null) 
         return;
     }
 
-    if (!is_object($user)) {
+    if (is_int($user)) {
         $user = $DB->get_record('user', array('id' => $user));
     }
 
@@ -3004,35 +2991,13 @@ function feedback_check_updates_since(cm_info $cm, $from, $filter = array()) {
  *
  * @param calendar_event $event
  * @param \core_calendar\action_factory $factory
- * @param int $userid User id to use for all capability checks, etc. Set to 0 for current user (default).
  * @return \core_calendar\local\event\entities\action_interface|null
  */
 function mod_feedback_core_calendar_provide_event_action(calendar_event $event,
-                                                         \core_calendar\action_factory $factory,
-                                                         int $userid = 0) {
+                                                         \core_calendar\action_factory $factory) {
 
-    global $USER;
-
-    if (empty($userid)) {
-        $userid = $USER->id;
-    }
-
-    $cm = get_fast_modinfo($event->courseid, $userid)->instances['feedback'][$event->instance];
-
-    if (!$cm->uservisible) {
-        // The module is not visible to the user for any reason.
-        return null;
-    }
-
-    $completion = new \completion_info($cm->get_course());
-
-    $completiondata = $completion->get_data($cm, false, $userid);
-
-    if ($completiondata->completionstate != COMPLETION_INCOMPLETE) {
-        return null;
-    }
-
-    $feedbackcompletion = new mod_feedback_completion(null, $cm, 0, false, null, null, $userid);
+    $cm = get_fast_modinfo($event->courseid)->instances['feedback'][$event->instance];
+    $feedbackcompletion = new mod_feedback_completion(null, $cm, 0);
 
     if (!empty($cm->customdata['timeclose']) && $cm->customdata['timeclose'] < time()) {
         // Feedback is already closed, do not display it even if it was never submitted.
@@ -3047,7 +3012,7 @@ function mod_feedback_core_calendar_provide_event_action(calendar_event $event,
     // The feedback is actionable if it does not have timeopen or timeopen is in the past.
     $actionable = $feedbackcompletion->is_open();
 
-    if ($actionable && $feedbackcompletion->is_already_submitted(false)) {
+    if ($actionable && $feedbackcompletion->is_already_submitted()) {
         // There is no need to display anything if the user has already submitted the feedback.
         return null;
     }

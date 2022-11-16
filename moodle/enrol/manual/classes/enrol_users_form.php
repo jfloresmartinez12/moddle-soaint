@@ -98,9 +98,7 @@ class enrol_manual_enrol_users_form extends moodleform {
             'ajax' => 'enrol_manual/form-potential-user-selector',
             'multiple' => true,
             'courseid' => $course->id,
-            'enrolid' => $instance->id,
-            'perpage' => $CFG->maxusersperpage,
-            'userfields' => implode(',', get_extra_user_fields($context))
+            'enrolid' => $instance->id
         );
         $mform->addElement('autocomplete', 'userlist', get_string('selectusers', 'enrol_manual'), array(), $options);
 

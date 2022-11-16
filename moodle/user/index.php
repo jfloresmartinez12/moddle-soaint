@@ -292,9 +292,7 @@ if ($bulkoperations) {
         'value' => get_string('deselectall')));
     echo html_writer::end_tag('div');
     $displaylist = array();
-    if (!empty($CFG->messaging)) {
-        $displaylist['#messageselect'] = get_string('messageselectadd');
-    }
+    $displaylist['#messageselect'] = get_string('messageselectadd');
     if (!empty($CFG->enablenotes) && has_capability('moodle/notes:manage', $context) && $context->id != $frontpagectx->id) {
         $displaylist['#addgroupnote'] = get_string('addnewnote', 'notes');
     }
@@ -368,8 +366,9 @@ echo '</div>';
 
 if ($newcourse == 1) {
     $str = get_string('proceedtocourse', 'enrol');
+    // Floated left so it goes under the enrol users button on mobile.
     // The margin is to make it line up with the enrol users button when they are both on the same line.
-    $classes = 'my-1';
+    $classes = 'm-y-1 pull-xs-left';
     $url = course_get_url($course);
     echo $OUTPUT->single_button($url, $str, 'GET', array('class' => $classes));
 }

@@ -61,7 +61,7 @@ class mod_assign_external_testcase extends externallib_advanced_testcase {
         $context = context_course::instance($course->id);
         $roleid = $this->assignUserCapability('moodle/course:viewparticipants', $context->id, 3);
         $context = context_module::instance($assign->cmid);
-        $this->assignUserCapability('mod/assign:viewgrades', $context->id, $roleid);
+        $this->assignUserCapability('mod/assign:grade', $context->id, $roleid);
 
         // Create the teacher's enrolment record.
         $userenrolmentdata['status'] = 0;
@@ -434,17 +434,6 @@ class mod_assign_external_testcase extends externallib_advanced_testcase {
         $this->assertEquals($sid, $submission['id']);
         $this->assertCount(1, $submission['plugins']);
         $this->assertEquals('notgraded', $submission['gradingstatus']);
-
-        // Test locking the context.
-        set_config('contextlocking', 1);
-        $context = context_course::instance($course1->id);
-        $context->set_locked(true);
-
-        $this->setUser($teacher);
-        $assignmentids[] = $assign1->id;
-        $result = mod_assign_external::get_submissions($assignmentids);
-        $result = external_api::clean_returnvalue(mod_assign_external::get_submissions_returns(), $result);
-        $this->assertEquals(1, count($result['assignments']));
     }
 
     /**
@@ -2168,65 +2157,6 @@ class mod_assign_external_testcase extends externallib_advanced_testcase {
         // Access control test.
         mod_assign_external::get_submission_status($assign->get_instance()->id, $student1->id);
 
-    }
-
-    /**
-     * Test get_submission_status with override for student.
-     */
-    public function test_get_submission_status_with_override() {
-        global $DB;
-
-        $this->resetAfterTest(true);
-
-        list($assign, $instance, $student1, $student2, $teacher, $g1, $g2) = $this->create_submission_for_testing_status();
-
-        $overridedata = new \stdClass();
-        $overridedata->assignid = $assign->get_instance()->id;
-        $overridedata->userid = $student1->id;
-        $overridedata->allowsubmissionsfromdate = time() + YEARSECS;
-        $DB->insert_record('assign_overrides', $overridedata);
-
-        $result = mod_assign_external::get_submission_status($assign->get_instance()->id);
-        // We expect debugging because of the $PAGE object, this won't happen in a normal WS request.
-        $this->assertDebuggingCalled();
-        $result = external_api::clean_returnvalue(mod_assign_external::get_submission_status_returns(), $result);
-
-        $this->assertCount(0, $result['warnings']);
-        $this->assertFalse(isset($result['gradingsummary']));
-        $this->assertFalse(isset($result['feedback']));
-        $this->assertFalse(isset($result['previousattempts']));
-
-        $this->assertTrue($result['lastattempt']['submissionsenabled']);
-        $this->assertFalse($result['lastattempt']['canedit']);  // False because of override.
-        $this->assertFalse($result['lastattempt']['cansubmit']);
-        $this->assertFalse($result['lastattempt']['locked']);
-        $this->assertFalse($result['lastattempt']['graded']);
-        $this->assertEmpty($result['lastattempt']['extensionduedate']);
-        $this->assertFalse($result['lastattempt']['blindmarking']);
-        $this->assertCount(0, $result['lastattempt']['submissiongroupmemberswhoneedtosubmit']);
-        $this->assertEquals('notgraded', $result['lastattempt']['gradingstatus']);
-
-        // Same assignment but user without override.
-        $this->setUser($student2);
-
-        $result = mod_assign_external::get_submission_status($assign->get_instance()->id);
-        $result = external_api::clean_returnvalue(mod_assign_external::get_submission_status_returns(), $result);
-
-        // The submission is now in draft mode.
-        $this->assertCount(0, $result['warnings']);
-        $this->assertFalse(isset($result['gradingsummary']));
-        $this->assertFalse(isset($result['feedback']));
-        $this->assertFalse(isset($result['previousattempts']));
-
-        $this->assertTrue($result['lastattempt']['submissionsenabled']);
-        $this->assertTrue($result['lastattempt']['canedit']);  // True because there is not override for this user.
-        $this->assertFalse($result['lastattempt']['cansubmit']);
-        $this->assertFalse($result['lastattempt']['locked']);
-        $this->assertFalse($result['lastattempt']['graded']);
-        $this->assertEmpty($result['lastattempt']['extensionduedate']);
-        $this->assertFalse($result['lastattempt']['blindmarking']);
-        $this->assertCount(0, $result['lastattempt']['submissiongroupmemberswhoneedtosubmit']);
-        $this->assertEquals('notgraded', $result['lastattempt']['gradingstatus']);
     }
 
     /**

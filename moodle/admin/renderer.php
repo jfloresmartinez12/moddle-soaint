@@ -823,7 +823,8 @@ class core_admin_renderer extends plugin_renderer_base {
      */
     protected function registration_warning($registered) {
 
-        if (!$registered && site_is_public()) {
+        if (!$registered) {
+
             if (has_capability('moodle/site:config', context_system::instance())) {
                 $registerbutton = $this->single_button(new moodle_url('/admin/registration/index.php'),
                     get_string('register', 'admin'));
@@ -1449,11 +1450,9 @@ class core_admin_renderer extends plugin_renderer_base {
                     $class = 'requires-failed';
                     $label = html_writer::span(get_string('dependencyfails', 'core_plugin'), 'label label-important');
                 }
-                if ($reqinfo->reqver != ANY_VERSION) {
-                    $requires[] = html_writer::tag('li',
-                        html_writer::span(get_string('moodleversion', 'core_plugin', $plugin->versionrequires), 'dep dep-core').
-                        ' '.$label, array('class' => $class));
-                }
+                $requires[] = html_writer::tag('li',
+                    html_writer::span(get_string('moodleversion', 'core_plugin', $plugin->versionrequires), 'dep dep-core').
+                    ' '.$label, array('class' => $class));
 
             } else {
                 $actions = array();
@@ -2092,27 +2091,6 @@ class core_admin_renderer extends plugin_renderer_base {
      * @return string
      */
     public function moodleorg_registration_message() {
-
-        $out = format_text(get_string('registerwithmoodleorginfo', 'core_hub'), FORMAT_MARKDOWN);
-
-        $out .= html_writer::link(
-            new moodle_url('/admin/settings.php', ['section' => 'moodleservices']),
-            $this->output->pix_icon('i/info', '').' '.get_string('registerwithmoodleorginfoapp', 'core_hub'),
-            ['class' => 'btn btn-link', 'role' => 'opener', 'target' => '_href']
-        );
-
-        $out .= html_writer::link(
-            HUB_MOODLEORGHUBURL,
-            $this->output->pix_icon('i/stats', '').' '.get_string('registerwithmoodleorginfostats', 'core_hub'),
-            ['class' => 'btn btn-link', 'role' => 'opener', 'target' => '_href']
-        );
-
-        $out .= html_writer::link(
-            HUB_MOODLEORGHUBURL.'/sites',
-            $this->output->pix_icon('i/location', '').' '.get_string('registerwithmoodleorginfosites', 'core_hub'),
-            ['class' => 'btn btn-link', 'role' => 'opener', 'target' => '_href']
-        );
-
-        return $this->output->box($out);
+        return format_text(get_string('registermoodlenet', 'admin'), FORMAT_HTML, ['noclean' => true]);
     }
 }

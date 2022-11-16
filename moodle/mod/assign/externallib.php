@@ -115,8 +115,7 @@ class mod_assign_external extends external_api {
             try {
                 $context = context_module::instance($cm->id);
                 self::validate_context($context);
-                $assign = new assign($context, null, null);
-                $assign->require_view_grades();
+                require_capability('mod/assign:grade', $context);
             } catch (Exception $e) {
                 $requestedassignmentids = array_diff($requestedassignmentids, array($cm->instance));
                 $warning = array();
@@ -460,10 +459,9 @@ class mod_assign_external extends external_api {
 
                     // Return or not intro and file attachments depending on the plugin settings.
                     if ($assign->show_intro()) {
-                        $options = array('noclean' => true);
-                        list($assignment['intro'], $assignment['introformat']) =
-                            external_format_text($module->intro, $module->introformat, $context->id, 'mod_assign', 'intro', null,
-                                $options);
+
+                        list($assignment['intro'], $assignment['introformat']) = external_format_text($module->intro,
+                            $module->introformat, $context->id, 'mod_assign', 'intro', null);
                         $assignment['introfiles'] = external_util::get_area_files($context->id, 'mod_assign', 'intro', false,
                                                                                     false);
 
@@ -716,8 +714,8 @@ class mod_assign_external extends external_api {
             try {
                 $context = context_module::instance($cm->id);
                 self::validate_context($context);
+                require_capability('mod/assign:grade', $context);
                 $assign = new assign($context, null, null);
-                $assign->require_view_grades();
                 $assigns[] = $assign;
             } catch (Exception $e) {
                 $warnings[] = array(
@@ -2330,8 +2328,6 @@ class mod_assign_external extends external_api {
         if (!$assign->can_view_submission($user->id)) {
             throw new required_capability_exception($context, 'mod/assign:viewgrades', 'nopermission', '');
         }
-
-        $assign->update_effective_access($user->id);
 
         $gradingsummary = $lastattempt = $feedback = $previousattempts = null;
 

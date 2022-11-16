@@ -90,9 +90,8 @@ class mod_forum_external extends external_api {
 
                 $forum->name = external_format_string($forum->name, $context->id);
                 // Format the intro before being returning using the format setting.
-                $options = array('noclean' => true);
-                list($forum->intro, $forum->introformat) =
-                    external_format_text($forum->intro, $forum->introformat, $context->id, 'mod_forum', 'intro', null, $options);
+                list($forum->intro, $forum->introformat) = external_format_text($forum->intro, $forum->introformat,
+                                                                                $context->id, 'mod_forum', 'intro', null);
                 $forum->introfiles = external_util::get_area_files($context->id, 'mod_forum', 'intro', false, false);
                 // Discussions count. This function does static request cache.
                 $forum->numdiscussions = forum_count_discussions($forum, $cm, $course);
@@ -824,14 +823,9 @@ class mod_forum_external extends external_api {
         $context = context_module::instance($cm->id);
         self::validate_context($context);
 
-        $coursecontext = \context_course::instance($course->id);
-        $discussionsubscribe = \mod_forum\subscriptions::get_user_default_subscription($forum, $coursecontext,
-            $cm, null);
-
         // Validate options.
         $options = array(
-            'discussionsubscribe' => $discussionsubscribe,
-            'private'             => false,
+            'discussionsubscribe' => true,
             'inlineattachmentsid' => 0,
             'attachmentsid' => null
         );
@@ -902,11 +896,9 @@ class mod_forum_external extends external_api {
                 $completion->update_state($cm, COMPLETION_COMPLETE);
             }
 
-            if ($options['discussionsubscribe']) {
-                $settings = new stdClass();
-                $settings->discussionsubscribe = $options['discussionsubscribe'];
-                forum_post_subscription($settings, $forum, $discussion);
-            }
+            $settings = new stdClass();
+            $settings->discussionsubscribe = $options['discussionsubscribe'];
+            forum_post_subscription($settings, $forum, $discussion);
         } else {
             throw new moodle_exception('couldnotadd', 'forum');
         }

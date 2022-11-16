@@ -779,11 +779,6 @@ function(
      * @return {Bool}
      */
     var requiresContactRequest = function(loggedInUserId, user) {
-        // If a user can message then no contact request is required.
-        if (user.canmessage) {
-            return false;
-        }
-
         var contactRequests = user.contactrequests.filter(function(request) {
             return request.userid == loggedInUserId || request.requesteduserid;
         });
@@ -961,7 +956,7 @@ function(
                         type: 'add-contact',
                         user: otherUser
                     };
-                } else if (!otherUser.canmessage && (otherUser.requirescontact && !otherUser.iscontact)) {
+                } else if (!otherUser.canmessage || (otherUser.requirescontact && !otherUser.iscontact)) {
                     return {type: 'unable-to-message'};
                 }
             }

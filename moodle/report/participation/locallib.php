@@ -98,8 +98,8 @@ function report_participation_get_time_options($minlog) {
 function report_participation_get_action_sql($action, $modname) {
     global $CFG, $DB;
 
-    $actionsql = '';
-    $actionparams = array();
+    $crudsql = '';
+    $crudparams = array();
 
     $viewnames = array();
     $postnames = array();

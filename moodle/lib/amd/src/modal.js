@@ -35,7 +35,6 @@ define(['jquery', 'core/templates', 'core/notification', 'core/key_codes',
         FOOTER: '[data-region="footer"]',
         HIDE: '[data-action="hide"]',
         DIALOG: '[role=dialog]',
-        FORM: 'form',
         MENU_BAR: '[role=menubar]',
         HAS_Z_INDEX: '.moodle-has-zindex',
         CAN_RECEIVE_FOCUS: 'input:not([type="hidden"]), a[href], button, textarea, select, [tabindex]',
@@ -573,18 +572,6 @@ define(['jquery', 'core/templates', 'core/notification', 'core/key_codes',
     };
 
     /**
-     * Hide this modal if it does not contain a form.
-     *
-     * @method hideIfNotForm
-     */
-    Modal.prototype.hideIfNotForm = function() {
-        var formElement = this.modal.find(SELECTORS.FORM);
-        if (formElement.length == 0) {
-            this.hide();
-        }
-    };
-
-    /**
      * Hide this modal.
      *
      * @method hide
@@ -740,7 +727,7 @@ define(['jquery', 'core/templates', 'core/notification', 'core/key_codes',
                 // So, we check if we can still find the container element or not. If not, then the DOM tree is changed.
                 // It's best not to hide the modal in that case.
                 if ($(e.target).closest(SELECTORS.CONTAINER).length) {
-                    this.hideIfNotForm();
+                    this.hide();
                 }
             }
         }.bind(this));

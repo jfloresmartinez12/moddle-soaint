@@ -144,7 +144,6 @@ function(
             context.pages.push(page);
         }
 
-        context.barsize = 10;
         return context;
     };
 

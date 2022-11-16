@@ -102,9 +102,8 @@ class mod_wiki_external extends external_api {
 
                 $viewablefields = [];
                 if (has_capability('mod/wiki:viewpage', $context)) {
-                    $options = array('noclean' => true);
                     list($module['intro'], $module['introformat']) =
-                        external_format_text($wiki->intro, $wiki->introformat, $context->id, 'mod_wiki', 'intro', null, $options);
+                        external_format_text($wiki->intro, $wiki->introformat, $context->id, 'mod_wiki', 'intro', null);
                     $module['introfiles'] = external_util::get_area_files($context->id, 'mod_wiki', 'intro', false, false);
 
                     $viewablefields = array('firstpagetitle', 'wikimode', 'defaultformat', 'forceformat', 'editbegin', 'editend',

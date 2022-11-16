@@ -532,7 +532,8 @@ class provider implements
                               AND ctx.contextlevel = :categorycontext)
                            OR (e.courseid = ctx.instanceid
                               AND (e.eventtype = 'course'
-                                  OR e.eventtype = 'group')
+                                  OR e.eventtype = 'group'
+                                  OR e.modulename != '0')
                               AND ctx.contextlevel = :coursecontext)
                            OR (e.userid = ctx.instanceid
                               AND e.eventtype = 'user'

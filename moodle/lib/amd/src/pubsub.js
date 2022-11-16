@@ -20,7 +20,7 @@
  * @copyright  2018 Ryan Wyllie <ryan@moodle.com>
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-define(['core/pending'], function(Pending) {
+define([], function() {
 
     var events = {};
 
@@ -59,13 +59,11 @@ define(['core/pending'], function(Pending) {
      * @param {any} data The data to provide to the subscribed callbacks.
      */
     var publish = function(eventName, data) {
-        var pendingPromise = new Pending("Publishing " + eventName);
         if (events[eventName]) {
             events[eventName].forEach(function(callback) {
                 callback(data);
             });
         }
-        pendingPromise.resolve();
     };
 
     return {

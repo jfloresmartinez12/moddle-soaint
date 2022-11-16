@@ -581,7 +581,7 @@ function lesson_add_header_buttons($cm, $context, $extraeditbuttons=false, $less
                 'id'       => $cm->id,
                 'pageid'   => $lessonpageid,
                 'edit'     => 1,
-                'returnto' => $PAGE->url->out_as_local_url(false)
+                'returnto' => $PAGE->url->out(false)
             ));
             $PAGE->set_button($OUTPUT->single_button($url, get_string('editpagecontent', 'lesson')));
         }
@@ -1320,7 +1320,7 @@ abstract class lesson_add_page_form_base extends moodleform {
 
         if (!empty($this->_customdata['returnto'])) {
             $mform->addElement('hidden', 'returnto', $this->_customdata['returnto']);
-            $mform->setType('returnto', PARAM_LOCALURL);
+            $mform->setType('returnto', PARAM_URL);
         }
 
         $mform->addElement('hidden', 'id');
@@ -1637,9 +1637,6 @@ class lesson extends lesson_base {
 
         $this->delete_all_overrides();
 
-        grade_update('mod/lesson', $this->properties->course, 'mod', 'lesson', $this->properties->id, 0, null, array('deleted'=>1));
-
-        // We must delete the module record after we delete the grade item.
         $DB->delete_records("lesson", array("id"=>$this->properties->id));
         $DB->delete_records("lesson_pages", array("lessonid"=>$this->properties->id));
         $DB->delete_records("lesson_answers", array("lessonid"=>$this->properties->id));
@@ -1660,6 +1657,7 @@ class lesson extends lesson_base {
         $fs = get_file_storage();
         $fs->delete_area_files($context->id);
 
+        grade_update('mod/lesson', $this->properties->course, 'mod', 'lesson', $this->properties->id, 0, null, array('deleted'=>1));
         return true;
     }
 
@@ -1728,25 +1726,6 @@ class lesson extends lesson_base {
         foreach ($overrides as $override) {
             $this->delete_override($override->id);
         }
-    }
-
-    /**
-     * Checks user enrollment in the current course.
-     *
-     * @param int $userid
-     * @return null|stdClass user record
-     */
-    public function is_participant($userid) {
-        return is_enrolled($this->get_context(), $userid, 'mod/lesson:view', $this->show_only_active_users());
-    }
-
-    /**
-     * Check is only active users in course should be shown.
-     *
-     * @return bool true if only active users should be shown.
-     */
-    public function show_only_active_users() {
-        return !has_capability('moodle/course:viewsuspendedusers', $this->get_context());
     }
 
     /**
@@ -4208,9 +4187,8 @@ abstract class lesson_page extends lesson_base {
                         if (!empty(trim($response))) {
                             $studentresponse = isset($result->responseformat) ?
                                 $this->format_response($response, $context, $result->responseformat, $options) : $response;
-                            $studentresponsecontent = html_writer::div('<em>' . get_string("response", "lesson") .
-                                '</em>: <br/>' . $studentresponse, $class);
-                            $table->data[] = array($studentresponsecontent);
+                            $table->data[] = array('<em>'.get_string("response", "lesson").
+                                '</em>: <br/>'.$studentresponse);
                         } else {
                             $table->data[] = array('');
                         }
@@ -4224,9 +4202,8 @@ abstract class lesson_page extends lesson_base {
                         $studentresponse = isset($result->responseformat) ?
                             $this->format_response($result->response, $context, $result->responseformat,
                                 $result->answerid, $options) : $result->response;
-                        $studentresponsecontent = html_writer::div('<em>' . get_string("response", "lesson") .
-                            '</em>: <br/>' . $studentresponse, $class);
-                        $table->data[] = array($studentresponsecontent);
+                        $table->data[] = array('<em>'.get_string("response", "lesson").
+                            '</em>: <br/>'.$studentresponse);
                     } else {
                         $table->data[] = array('');
                     }
@@ -4476,7 +4453,7 @@ abstract class lesson_page extends lesson_base {
                     $this->answers[$i]->responseformat = $properties->response_editor[$i]['format'];
                 }
 
-                if ($this->answers[$i]->answer !== null && $this->answers[$i]->answer !== '') {
+                if (isset($this->answers[$i]->answer) && $this->answers[$i]->answer != '') {
                     if (isset($properties->jumpto[$i])) {
                         $this->answers[$i]->jumpto = $properties->jumpto[$i];
                     }

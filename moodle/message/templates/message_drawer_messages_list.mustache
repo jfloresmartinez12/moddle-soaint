@@ -48,7 +48,6 @@
             data-route-param-3="{{userid}}"
         {{/conversationid}}
         data-conversation-id="{{conversationid}}"
-        role="button"
     >
         <img
             class="rounded-circle"
@@ -74,7 +73,7 @@
                     data-region="last-message-date"
                 >
                     {{#lastmessagedate}}
-                        {{#userdate}} {{.}}, {{#str}} strftimedatefullshort, core_langconfig  {{/str}} {{/userdate}}
+                        {{#userdate}} {{.}}, {{#str}} strftimetime24, core_langconfig  {{/str}} {{/userdate}}
                     {{/lastmessagedate}}
                 </div>
             </div>

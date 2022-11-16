@@ -382,6 +382,9 @@ $definitions = array(
         'mode' => cache_store::MODE_SESSION,
         'simplekeys' => true,
         'simpledata' => true,
-        'ttl' => 1800
+        'ttl' => 1800,
+        'invalidationevents' => array(
+            'createduser',
+        )
     ),
 );

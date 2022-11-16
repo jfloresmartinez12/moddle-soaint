@@ -32,7 +32,7 @@ global $CFG;
 require_once($CFG->libdir . '/formslib.php');
 
 /**
- * The site registration form. Information will be sent to the sites directory.
+ * The site registration form. Information will be sent to moodle.net
  *
  * @author     Jerome Mouneyrac <jerome@mouneyrac.com>
  * @package    core
@@ -161,16 +161,16 @@ class site_registration_form extends \moodleform {
         $mform->addElement('static', 'urlstring', get_string('siteurl', 'hub'), $siteinfo['url']);
         $mform->addHelpButton('urlstring', 'siteurl', 'hub');
 
-        // Display statistic that are going to be retrieve by the sites directory.
+        // Display statistic that are going to be retrieve by moodle.net.
         $mform->addElement('static', 'siteinfosummary', get_string('sendfollowinginfo', 'hub'), registration::get_stats_summary($siteinfo));
 
         // Check if it's a first registration or update.
         if (registration::is_registered()) {
-            $buttonlabel = get_string('updatesiteregistration', 'core_hub');
+            $buttonlabel = get_string('updatesite', 'hub', 'Moodle.net');
             $mform->addElement('hidden', 'update', true);
             $mform->setType('update', PARAM_BOOL);
         } else {
-            $buttonlabel = get_string('register', 'core_admin');
+            $buttonlabel = get_string('registersite', 'hub', 'Moodle.net');
         }
 
         $this->add_action_buttons(false, $buttonlabel);

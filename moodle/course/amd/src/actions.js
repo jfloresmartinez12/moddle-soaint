@@ -352,21 +352,30 @@ define(['jquery', 'core/ajax', 'core/templates', 'core/notification', 'core/str'
          * @param {String} image new image name ("i/show", "i/hide", etc.)
          * @param {String} stringname new string for the action menu item
          * @param {String} stringcomponent
-         * @param {String} titlestr not used
-         * @param {String} titlecomponent not used
+         * @param {String} titlestr string for "title" attribute (if different from stringname)
+         * @param {String} titlecomponent
          * @param {String} newaction new value for data-action attribute of the link
          * @return {Promise} promise which is resolved when the replacement has completed
          */
         var replaceActionItem = function(actionitem, image, stringname,
                                            stringcomponent, titlestr, titlecomponent, newaction) {
 
+
             var stringRequests = [{key: stringname, component: stringcomponent}];
-            // Do not provide an icon with duplicate, different text to the menu item.
+            if (titlestr) {
+                stringRequests.push({key: titlestr, component: titlecomponent});
+            }
 
             return str.get_strings(stringRequests).then(function(strings) {
                 actionitem.find('span.menu-action-text').html(strings[0]);
+                actionitem.attr('title', strings[0]);
 
-                return templates.renderPix(image, 'core');
+                var title = '';
+                if (titlestr) {
+                    title = strings[1];
+                    actionitem.attr('title', title);
+                }
+                return templates.renderPix(image, 'core', title);
             }).then(function(pixhtml) {
                 actionitem.find('.icon').replaceWith(pixhtml);
                 actionitem.attr('data-action', newaction);

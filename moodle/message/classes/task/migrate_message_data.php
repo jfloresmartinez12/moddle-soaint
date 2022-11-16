@@ -236,7 +236,7 @@ class migrate_message_data extends \core\task\adhoc_task {
         }
 
         // Check if we need to mark this message as deleted for the user to.
-        if ($message->timeusertodeleted and ($message->useridfrom != $message->useridto)) {
+        if ($message->timeusertodeleted) {
             $mua = new \stdClass();
             $mua->userid = $message->useridto;
             $mua->messageid = $messageid;

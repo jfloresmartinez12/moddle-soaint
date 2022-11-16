@@ -153,12 +153,6 @@ class invalid_analysables implements \renderable, \templatable {
             $data->analysables[] = $obj;
         }
 
-        if (empty($data->analysables)) {
-            $data->noanalysables = [
-                'message' => get_string('noinvalidanalysables', 'tool_analytics'),
-                'announce' => true,
-            ];
-        }
         return $data;
     }
 }

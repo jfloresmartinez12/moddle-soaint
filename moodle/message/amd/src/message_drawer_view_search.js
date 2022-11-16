@@ -67,7 +67,6 @@ function(
         LOAD_MORE_MESSAGES: '[data-action="load-more-messages"]',
         BUTTON_TEXT: '[data-region="button-text"]',
         NO_RESULTS_CONTAINTER: '[data-region="no-results-container"]',
-        ALL_CONTACTS_CONTAINER: '[data-region="all-contacts-container"]'
     };
 
     var TEMPLATES = {
@@ -269,110 +268,6 @@ function(
     };
 
     /**
-     * Show the no search results message.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var showNoSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.ALL_CONTACTS_CONTAINER).addClass('hidden');
-        container.find(SELECTORS.MESSAGES_CONTAINER).addClass('hidden');
-        container.find(SELECTORS.NO_RESULTS_CONTAINTER).removeClass('hidden');
-    };
-
-    /**
-     * Hide the no search results message.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var hideNoSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.ALL_CONTACTS_CONTAINER).removeClass('hidden');
-        container.find(SELECTORS.MESSAGES_CONTAINER).removeClass('hidden');
-        container.find(SELECTORS.NO_RESULTS_CONTAINTER).addClass('hidden');
-    };
-
-    /**
-     * Show the whole contacts results area.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var showAllContactsSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.ALL_CONTACTS_CONTAINER).removeClass('hidden');
-    };
-
-    /**
-     * Hide the whole contacts results area.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var hideAllContactsSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.ALL_CONTACTS_CONTAINER).addClass('hidden');
-    };
-
-    /**
-     * Show the contacts results.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var showContactsSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.CONTACTS_CONTAINER).removeClass('hidden');
-    };
-
-    /**
-     * Hide the contacts results.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var hideContactsSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.CONTACTS_CONTAINER).addClass('hidden');
-    };
-
-    /**
-     * Show the non contacts results.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var showNonContactsSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.NON_CONTACTS_CONTAINER).removeClass('hidden');
-    };
-
-    /**
-     * Hide the non contacts results.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var hideNonContactsSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.NON_CONTACTS_CONTAINER).addClass('hidden');
-    };
-
-    /**
-     * Show the messages results.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var showMessagesSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.MESSAGES_CONTAINER).removeClass('hidden');
-    };
-
-    /**
-     * Hide the messages results.
-     *
-     * @param {Object} body Search body container element.
-     */
-    var hideMessagesSearchResults = function(body) {
-        var container = getSearchResultsContainer(body);
-        container.find(SELECTORS.MESSAGES_CONTAINER).addClass('hidden');
-    };
-
-    /**
      * Disable the search input.
      *
      * @param {Object} header Search header container element.
@@ -408,11 +303,7 @@ function(
         body.find(SELECTORS.CONTACTS_LIST).empty();
         body.find(SELECTORS.NON_CONTACTS_LIST).empty();
         body.find(SELECTORS.MESSAGES_LIST).empty();
-        hideNoSearchResults(body);
-        showAllContactsSearchResults(body);
-        showContactsSearchResults(body);
-        showNonContactsSearchResults(body);
-        showMessagesSearchResults(body);
+        body.find(SELECTORS.NO_RESULTS_CONTAINTER).addClass('hidden');
         showLoadMoreUsersButton(body);
         showLoadMoreMessagesButton(body);
     };
@@ -623,11 +514,17 @@ function(
         var container = getContactsContainer(root);
         var list = container.find(SELECTORS.LIST);
 
-        return Templates.render(TEMPLATES.CONTACTS_LIST, {contacts: contacts})
-            .then(function(html) {
-                list.append(html);
-                return html;
-            });
+        if (!contacts.length && !list.children().length) {
+            var noResultsContainer = container.find(SELECTORS.NO_RESULTS_CONTAINTER);
+            noResultsContainer.removeClass('hidden');
+            return $.Deferred().resolve('').promise();
+        } else {
+            return Templates.render(TEMPLATES.CONTACTS_LIST, {contacts: contacts})
+                .then(function(html) {
+                    list.append(html);
+                    return html;
+                });
+        }
     };
 
     /**
@@ -641,11 +538,17 @@ function(
         var container = getNonContactsContainer(root);
         var list = container.find(SELECTORS.LIST);
 
-        return Templates.render(TEMPLATES.NON_CONTACTS_LIST, {noncontacts: nonContacts})
-            .then(function(html) {
-                list.append(html);
-                return html;
-            });
+        if (!nonContacts.length && !list.children().length) {
+            var noResultsContainer = container.find(SELECTORS.NO_RESULTS_CONTAINTER);
+            noResultsContainer.removeClass('hidden');
+            return $.Deferred().resolve('').promise();
+        } else {
+            return Templates.render(TEMPLATES.NON_CONTACTS_LIST, {noncontacts: nonContacts})
+                .then(function(html) {
+                    list.append(html);
+                    return html;
+                });
+        }
     };
 
     /**
@@ -659,11 +562,17 @@ function(
         var container = getMessagesContainer(root);
         var list = container.find(SELECTORS.LIST);
 
-        return Templates.render(TEMPLATES.MESSAGES_LIST, {messages: messages})
-            .then(function(html) {
-                list.append(html);
-                return html;
-            });
+        if (!messages.length && !list.children().length) {
+            var noResultsContainer = container.find(SELECTORS.NO_RESULTS_CONTAINTER);
+            noResultsContainer.removeClass('hidden');
+            return $.Deferred().resolve('').promise();
+        } else {
+            return Templates.render(TEMPLATES.MESSAGES_LIST, {messages: messages})
+                .then(function(html) {
+                    list.append(html);
+                    return html;
+                });
+        }
     };
 
     /**
@@ -679,7 +588,6 @@ function(
     var loadMoreUsers = function(root, loggedInUserId, text, limit, offset) {
         var loadedAll = false;
         showUsersLoadingIcon(root);
-
         return Repository.searchUsers(loggedInUserId, text, limit + 1, offset)
             .then(function(results) {
                 var contacts = results.contacts;
@@ -699,28 +607,19 @@ function(
                 }
             })
             .then(function(results) {
-                var contactsCount = results.contacts.length;
-                var nonContactsCount = results.noncontacts.length;
-
                 return $.when(
-                    contactsCount ? renderContacts(root, results.contacts) : true,
-                    nonContactsCount ? renderNonContacts(root, results.noncontacts) : true
-                )
-                .then(function() {
-                    return {
-                        contactsCount: contactsCount,
-                        nonContactsCount: nonContactsCount
-                    };
-                });
+                    renderContacts(root, results.contacts),
+                    renderNonContacts(root, results.noncontacts)
+                );
             })
-            .then(function(counts) {
+            .then(function() {
                 hideUsersLoadingIcon(root);
 
                 if (loadedAll) {
                     hideLoadMoreUsersButton(root);
                 }
 
-                return counts;
+                return;
             })
             .catch(function(error) {
                 hideUsersLoadingIcon(root);
@@ -742,7 +641,6 @@ function(
     var loadMoreMessages = function(root, loggedInUserId, text, limit, offset) {
         var loadedAll = false;
         showMessagesLoadingIcon(root);
-
         return Repository.searchMessages(loggedInUserId, text, limit + 1, offset)
             .then(function(results) {
                 var messages = results.contacts;
@@ -755,23 +653,16 @@ function(
                 }
             })
             .then(function(messages) {
-                if (messages.length) {
-                    return renderMessages(root, messages)
-                        .then(function() {
-                            return messages.length;
-                        });
-                } else {
-                    return messages.length;
-                }
+                return renderMessages(root, messages);
             })
-            .then(function(count) {
+            .then(function() {
                 hideMessagesLoadingIcon(root);
 
                 if (loadedAll) {
                     hideLoadMoreMessagesButton(root);
                 }
 
-                return count;
+                return;
             })
             .catch(function(error) {
                 hideMessagesLoadingIcon(root);
@@ -801,32 +692,8 @@ function(
             loadMoreUsers(body, loggedInUserId, searchText, usersLimit, usersOffset),
             loadMoreMessages(body, loggedInUserId, searchText, messagesLimit, messagesOffset)
         )
-        .then(function(userCounts, messagesCount) {
-            var contactsCount = userCounts.contactsCount;
-            var nonContactsCount = userCounts.nonContactsCount;
-
+        .then(function() {
             stopLoading(header, body);
-
-            if (!contactsCount && !nonContactsCount && !messagesCount) {
-                showNoSearchResults(body);
-            } else {
-                if (!contactsCount && !nonContactsCount) {
-                    hideAllContactsSearchResults(body);
-                } else {
-                    if (!contactsCount) {
-                        hideContactsSearchResults(body);
-                    }
-
-                    if (!nonContactsCount) {
-                        hideNonContactsSearchResults(body);
-                    }
-                }
-
-                if (!messagesCount) {
-                    hideMessagesSearchResults(body);
-                }
-            }
-
             return;
         });
     };

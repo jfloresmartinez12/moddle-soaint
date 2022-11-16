@@ -766,7 +766,7 @@ class helper {
      */
     public static function get_management_viewmodes() {
         return array(
-            'combined' => new \lang_string('categoriesandcourses'),
+            'combined' => new \lang_string('categoriesandcoures'),
             'categories' => new \lang_string('categories'),
             'courses' => new \lang_string('courses')
         );

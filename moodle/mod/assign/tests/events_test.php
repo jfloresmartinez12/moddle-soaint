@@ -426,34 +426,24 @@ class assign_events_testcase extends advanced_testcase {
         $assign->testable_process_set_batch_marking_workflow_state($student->id, ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW);
 
         $events = $sink->get_events();
-        $eventcount = 0;
-        foreach ($events as $event) {
-            if ($event instanceof \mod_assign\event\submission_graded) {
-                $eventcount++;
-                $this->assertInstanceOf('\mod_assign\event\submission_graded', $event);
-                $this->assertEquals($assign->get_context(), $event->get_context());
-            }
-            if ($event instanceof \mod_assign\event\workflow_state_updated) {
-                $eventcount++;
-                $this->assertInstanceOf('\mod_assign\event\workflow_state_updated', $event);
-                $this->assertEquals($assign->get_context(), $event->get_context());
-                $this->assertEquals($assign->get_instance()->id, $event->objectid);
-                $this->assertEquals($student->id, $event->relateduserid);
-                $this->assertEquals($teacher->id, $event->userid);
-                $this->assertEquals(ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW, $event->other['newstate']);
-                $expected = array(
-                    $assign->get_course()->id,
-                    'assign',
-                    'set marking workflow state',
-                    'view.php?id=' . $assign->get_course_module()->id,
-                    get_string('setmarkingworkflowstateforlog', 'assign', array('id' => $student->id,
-                        'fullname' => fullname($student), 'state' => ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW)),
-                    $assign->get_course_module()->id
-                );
-                $this->assertEventLegacyLogData($expected, $event);
-            }
-        }
-        $this->assertEquals(2, $eventcount);
+        $this->assertCount(1, $events);
+        $event = reset($events);
+        $this->assertInstanceOf('\mod_assign\event\workflow_state_updated', $event);
+        $this->assertEquals($assign->get_context(), $event->get_context());
+        $this->assertEquals($assign->get_instance()->id, $event->objectid);
+        $this->assertEquals($student->id, $event->relateduserid);
+        $this->assertEquals($teacher->id, $event->userid);
+        $this->assertEquals(ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW, $event->other['newstate']);
+        $expected = array(
+            $assign->get_course()->id,
+            'assign',
+            'set marking workflow state',
+            'view.php?id=' . $assign->get_course_module()->id,
+            get_string('setmarkingworkflowstateforlog', 'assign', array('id' => $student->id,
+                'fullname' => fullname($student), 'state' => ASSIGN_MARKING_WORKFLOW_STATE_INREVIEW)),
+            $assign->get_course_module()->id
+        );
+        $this->assertEventLegacyLogData($expected, $event);
         $sink->close();
 
         // Test setting workflow state in apply_grade_to_user.
@@ -1363,43 +1353,4 @@ class assign_events_testcase extends advanced_testcase {
         $this->assertInstanceOf('\mod_assign\event\course_module_viewed', $event);
         $this->assertEquals($context, $event->get_context());
     }
-
-    /**
-     * Test that all events generated with blindmarking enabled are anonymous
-     */
-    public function test_anonymous_events() {
-        $this->resetAfterTest();
-
-        $course = $this->getDataGenerator()->create_course();
-        $teacher = $this->getDataGenerator()->create_and_enrol($course, 'editingteacher');
-        $student1 = $this->getDataGenerator()->create_and_enrol($course, 'student');
-        $student2 = $this->getDataGenerator()->create_and_enrol($course, 'student');
-
-        $generator = $this->getDataGenerator()->get_plugin_generator('mod_assign');
-        $instance = $generator->create_instance(array('course' => $course->id, 'blindmarking' => 1));
-
-        $cm = get_coursemodule_from_instance('assign', $instance->id, $course->id);
-        $context = context_module::instance($cm->id);
-        $assign = new assign($context, $cm, $course);
-
-        $this->setUser($teacher);
-        $sink = $this->redirectEvents();
-
-        $assign->lock_submission($student1->id);
-
-        $events = $sink->get_events();
-        $event = reset($events);
-
-        $this->assertTrue((bool)$event->anonymous);
-
-        $assign->reveal_identities();
-        $sink = $this->redirectEvents();
-        $assign->lock_submission($student2->id);
-
-        $events = $sink->get_events();
-        $event = reset($events);
-
-        $this->assertFalse((bool)$event->anonymous);
-    }
-
 }

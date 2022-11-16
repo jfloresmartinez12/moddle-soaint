@@ -33,7 +33,7 @@ use coding_exception;
 use moodle_url;
 
 /**
- * Provides methods to communicate with the hub (sites directory) web services.
+ * Methods to communicate with moodle.net web services
  *
  * @package    core
  * @copyright  2017 Marina Glancy
@@ -51,11 +51,11 @@ class api {
     const HUB_BACKUP_FILE_TYPE = 'backup';
 
     /**
-     * Calls a remote function exposed via web services on the hub.
+     * Calls moodle.net WS
      *
      * @param string $function name of WS function
      * @param array $data parameters of WS function
-     * @param bool $allowpublic allow request without registration on the hub
+     * @param bool $allowpublic allow request without moodle.net registration
      * @return mixed depends on the function
      * @throws moodle_exception
      */
@@ -71,7 +71,7 @@ class api {
     }
 
     /**
-     * Performs a REST request to the hub site (using the GET method).
+     * Performs REST request to moodle.net (using GET method)
      *
      * @param string $token
      * @param string $function
@@ -94,7 +94,7 @@ class api {
             // Connection error.
             throw new moodle_exception('errorconnect', 'hub', '', $curl->error);
         } else if (isset($curloutput['exception'])) {
-            // Exception occurred on the remote side.
+            // Exception occurred on moodle.net .
             self::process_curl_exception($token, $curloutput);
         } else if ($info['http_code'] != 200) {
             throw new moodle_exception('errorconnect', 'hub', '', $info['http_code']);
@@ -104,7 +104,7 @@ class api {
     }
 
     /**
-     * Analyses exception received from the hub server.
+     * Analyses exception received from moodle.net
      *
      * @param string $token token used for CURL request
      * @param array $curloutput output from CURL request
@@ -127,7 +127,7 @@ class api {
     }
 
     /**
-     * Update site registration on the hub.
+     * Update site registration on moodle.net
      *
      * @param array $siteinfo
      * @throws moodle_exception
@@ -138,20 +138,20 @@ class api {
     }
 
     /**
-     * Returns information about the hub.
+     * Returns information about moodle.net
      *
      * Example of the return array:
      * {
      *     "courses": 384,
-     *     "description": "Official Moodle sites directory.",
-     *     "downloadablecourses": 0,
-     *     "enrollablecourses": 0,
+     *     "description": "Moodle.net connects you with free content and courses shared by Moodle ...",
+     *     "downloadablecourses": 190,
+     *     "enrollablecourses": 194,
      *     "hublogo": 1,
      *     "language": "en",
-     *     "name": "moodle",
+     *     "name": "Moodle.net",
      *     "sites": 274175,
-     *     "url": "https://stats.moodle.org",
-     *     "imgurl": "https://stats.moodle.org/local/hub/webservice/download.php?filetype=hubscreenshot"
+     *     "url": "https://moodle.net",
+     *     "imgurl": "https://moodle.net/local/hub/webservice/download.php?filetype=hubscreenshot"
      * }
      *
      * @return array
@@ -357,7 +357,7 @@ class api {
      *
      * @param array|\stdClass $courseinfo
      * @return int id of the published course on the hub
-     * @throws moodle_exception if the communication with the hub failed or the course could not be published
+     * @throws moodle_exception if communication to moodle.net failed or course could not be published
      */
     public static function register_course($courseinfo) {
         $params = array('courses' => array($courseinfo));
@@ -371,7 +371,7 @@ class api {
     /**
      * Uploads a screenshot for the published course
      *
-     * @param int $hubcourseid id of the published course on the hub, it must be published from this site
+     * @param int $hubcourseid id of the published course on moodle.net, it must be published from this site
      * @param \stored_file $file
      * @param int $screenshotnumber ordinal number of the screenshot
      */
@@ -390,7 +390,7 @@ class api {
     /**
      * Downloads course backup
      *
-     * @param int $hubcourseid id of the course on the hub
+     * @param int $hubcourseid id of the course on moodle.net
      * @param string $path local path (in tempdir) to save the downloaded backup to.
      */
     public static function download_course_backup($hubcourseid, $path) {
@@ -414,7 +414,7 @@ class api {
     /**
      * Uploads a course backup
      *
-     * @param int $hubcourseid id of the published course on the hub, it must be published from this site
+     * @param int $hubcourseid id of the published course on moodle.net, it must be published from this site
      * @param \stored_file $backupfile
      */
     public static function upload_course_backup($hubcourseid, \stored_file $backupfile) {

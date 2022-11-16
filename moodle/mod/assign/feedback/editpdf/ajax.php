@@ -70,7 +70,6 @@ if ($action === 'pollconversions') {
             'filecount' => 0,
             'pagecount' => 0,
             'pageready' => 0,
-            'partial' => false,
             'pages' => [],
         ];
 
@@ -78,16 +77,10 @@ if ($action === 'pollconversions') {
     $response->status = $combineddocument->get_status();
     $response->filecount = $combineddocument->get_document_count();
 
-    $readystatuslist = [combined_document::STATUS_READY, combined_document::STATUS_READY_PARTIAL];
-    $completestatuslist = [combined_document::STATUS_COMPLETE, combined_document::STATUS_FAILED];
-
-    if (in_array($response->status, $readystatuslist)) {
+    if ($response->status === combined_document::STATUS_READY) {
         $combineddocument = document_services::get_combined_pdf_for_attempt($assignment, $userid, $attemptnumber);
-        $response->status = $combineddocument->get_status();
-        $response->filecount = $combineddocument->get_document_count();
-    }
-
-    if (in_array($response->status, $completestatuslist)) {
+        $response->pagecount = $combineddocument->get_page_count();
+    } else if ($response->status === combined_document::STATUS_COMPLETE || $response->status === combined_document::STATUS_FAILED) {
         $pages = document_services::get_page_images_for_attempt($assignment,
                                                                 $userid,
                                                                 $attemptnumber,
@@ -102,7 +95,6 @@ if ($action === 'pollconversions') {
         if ($readonly) {
             $filearea = document_services::PAGE_IMAGE_READONLY_FILEAREA;
         }
-        $response->partial = $combineddocument->is_partial_conversion();
 
         foreach ($pages as $id => $pagefile) {
             $index = count($response->pages);

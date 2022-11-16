@@ -28,7 +28,6 @@ global $CFG;
 use \core_privacy\tests\provider_testcase;
 use \core_user\privacy\provider;
 use \core_privacy\local\request\approved_userlist;
-use \core_privacy\local\request\transform;
 
 require_once($CFG->dirroot . "/user/lib.php");
 
@@ -60,11 +59,7 @@ class core_user_privacy_testcase extends provider_testcase {
      */
     public function test_export_user_data() {
         $this->resetAfterTest();
-        $user = $this->getDataGenerator()->create_user([
-            'firstaccess' => 1535760000,
-            'lastaccess' => 1541030400,
-            'currentlogin' => 1541030400,
-        ]);
+        $user = $this->getDataGenerator()->create_user();
         $course = $this->getDataGenerator()->create_course();
         $context = \context_user::instance($user->id);
 
@@ -130,11 +125,6 @@ class core_user_privacy_testcase extends provider_testcase {
         $this->assertTrue(array_key_exists('firstname', $userdata));
         $this->assertTrue(array_key_exists('lastname', $userdata));
         $this->assertTrue(array_key_exists('email', $userdata));
-        // Check access times.
-        $this->assertEquals(transform::datetime($user->firstaccess), $userdata['firstaccess']);
-        $this->assertEquals(transform::datetime($user->lastaccess), $userdata['lastaccess']);
-        $this->assertNull($userdata['lastlogin']);
-        $this->assertEquals(transform::datetime($user->currentlogin), $userdata['currentlogin']);
     }
 
     /**

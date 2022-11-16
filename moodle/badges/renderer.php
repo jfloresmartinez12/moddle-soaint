@@ -351,9 +351,7 @@ class core_badges_renderer extends plugin_renderer_base {
         if (!empty($badge->version)) {
             $dl[get_string('version', 'badges')] = $badge->version;
         }
-        if (!empty($badge->language)) {
-            $dl[get_string('language')] = $languages[$badge->language];
-        }
+        $dl[get_string('language')] = $languages[$badge->language];
         $dl[get_string('description', 'badges')] = $badge->description;
         if (!empty($badge->imageauthorname)) {
             $dl[get_string('imageauthorname', 'badges')] = $badge->imageauthorname;
@@ -428,7 +426,7 @@ class core_badges_renderer extends plugin_renderer_base {
             }
             $output .= html_writer::alist($items, array(), 'ul');
         }
-        $competencies = $badge->get_alignments();
+        $competencies = $badge->get_alignment();
         if (!empty($competencies)) {
             $output .= $this->heading(get_string('alignment', 'badges'), 3);
             $items = array();
@@ -1106,7 +1104,7 @@ class core_badges_renderer extends plugin_renderer_base {
     protected function print_badge_competencies(badge $badge) {
         $output = '';
         $output .= $this->heading(get_string('alignment', 'badges'), 3);
-        $competencies = $badge->get_alignments();
+        $competencies = $badge->get_alignment();
         if (!empty($competencies)) {
             $items = array();
             foreach ($competencies as $competency) {

@@ -178,15 +178,12 @@ class provider implements
         if (empty($contextlist->count())) {
             return;
         }
-        $userid = $contextlist->get_user()->id;
         foreach ($contextlist->get_contexts() as $context) {
             if ($context->contextlevel != CONTEXT_USER) {
-                continue;
+                return;
             }
-            if ($context->instanceid == $userid) {
-                // Because we only use user contexts the instance ID is the user ID.
-                static::delete_user_data($context->instanceid);
-            }
+            // Because we only use user contexts the instance ID is the user ID.
+            static::delete_user_data($context->instanceid);
         }
     }
 

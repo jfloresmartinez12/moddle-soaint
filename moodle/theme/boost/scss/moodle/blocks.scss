@@ -123,8 +123,8 @@ $card-gutter : $card-deck-margin * 2;
 }
 
 .summaryimage {
-    height: 5rem;
-    width: 5rem;
+    height: 7rem;
+    width: 7rem;
     background-position: center;
     background-size: cover;
 }
@@ -270,17 +270,17 @@ body.drawer-open-left #region-main.has-blocks {
 .block_navigation .block_tree [aria-expanded="true"]:before {
     content: $fa-var-angle-down;
     margin-right: 0;
-    @include fa-icon();
     font-size: 16px;
+    @extend .fa;
     width: 16px;
 }
 
 .block_settings .block_tree [aria-expanded="false"]:before,
 .block_navigation .block_tree [aria-expanded="false"]:before {
     content: $fa-var-angle-right;
-    margin-right: 0;
-    @include fa-icon();
     font-size: 16px;
+    margin-right: 0;
+    @extend .fa;
     width: 16px;
 }
 .dir-rtl {
@@ -297,8 +297,4 @@ body.drawer-open-left #region-main.has-blocks {
     .icon {
         margin-right: 2px;
     }
-}
-
-.block.invisibleblock .card-title {
-    color: $text-muted;
 }

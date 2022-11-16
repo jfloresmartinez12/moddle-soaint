@@ -691,9 +691,8 @@ class mod_scorm_external extends external_api {
                 $module['coursemodule'] = $scorm->coursemodule;
                 $module['course'] = $scorm->course;
                 $module['name']  = external_format_string($scorm->name, $context->id);
-                $options = array('noclean' => true);
                 list($module['intro'], $module['introformat']) =
-                    external_format_text($scorm->intro, $scorm->introformat, $context->id, 'mod_scorm', 'intro', null, $options);
+                    external_format_text($scorm->intro, $scorm->introformat, $context->id, 'mod_scorm', 'intro', null);
                 $module['introfiles'] = external_util::get_area_files($context->id, 'mod_scorm', 'intro', false, false);
 
                 // Check if the SCORM open and return warnings if so.
@@ -860,9 +859,7 @@ class mod_scorm_external extends external_api {
      * @throws moodle_exception
      */
     public static function launch_sco($scormid, $scoid = 0) {
-        global $DB, $CFG;
-
-        require_once($CFG->libdir . '/completionlib.php');
+        global $DB;
 
         $params = self::validate_parameters(self::launch_sco_parameters(),
                                             array(
@@ -884,10 +881,6 @@ class mod_scorm_external extends external_api {
         if (!empty($params['scoid']) and !($sco = scorm_get_sco($params['scoid'], SCO_ONLY))) {
             throw new moodle_exception('cannotfindsco', 'scorm');
         }
-
-        // Mark module viewed.
-        $completion = new completion_info($course);
-        $completion->set_module_viewed($cm);
 
         list($sco, $scolaunchurl) = scorm_get_sco_and_launch_url($scorm, $params['scoid'], $context);
         // Trigger the SCO launched event.

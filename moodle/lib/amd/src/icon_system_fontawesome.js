@@ -105,12 +105,7 @@ define(['core/icon_system', 'jquery', 'core/ajax', 'core/mustache', 'core/locals
             unmappedIcon: unmappedIcon
         };
 
-        if (typeof title === "undefined" || title === '') {
-            context['aria-hidden'] = true;
-        }
-
-        var result = Mustache.render(template, context);
-        return result.trim();
+        return Mustache.render(template, context);
     };
 
     /**

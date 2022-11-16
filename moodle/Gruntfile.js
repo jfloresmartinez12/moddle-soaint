@@ -24,7 +24,6 @@
  * Grunt configuration
  */
 
-/* eslint-env node */
 module.exports = function(grunt) {
     var path = require('path'),
         tasks = {},

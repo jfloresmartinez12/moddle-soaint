@@ -1627,11 +1627,7 @@ function assign_user_outline($course, $user, $coursemodule, $assignment) {
         return null;
     }
     $result = new stdClass();
-    if (!$gradingitem->hidden || has_capability('moodle/grade:viewhidden', context_course::instance($course->id))) {
-        $result->info = get_string('outlinegrade', 'assign', $gradebookgrade->str_long_grade);
-    } else {
-        $result->info = get_string('grade') . ': ' . get_string('hidden', 'grades');
-    }
+    $result->info = get_string('outlinegrade', 'assign', $gradebookgrade->str_long_grade);
     $result->time = $gradebookgrade->dategraded;
 
     return $result;
@@ -1878,14 +1874,6 @@ function mod_assign_core_calendar_provide_event_action(calendar_event $event,
 
     $cm = get_fast_modinfo($event->courseid, $userid)->instances['assign'][$event->instance];
     $context = context_module::instance($cm->id);
-
-    $completion = new \completion_info($cm->get_course());
-
-    $completiondata = $completion->get_data($cm, false, $userid);
-
-    if ($completiondata->completionstate != COMPLETION_INCOMPLETE) {
-        return null;
-    }
 
     $assign = new assign($context, $cm, null);
 

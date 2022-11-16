@@ -301,10 +301,6 @@ function scorm_delete_instance($id) {
         }
         $DB->delete_records('scorm_scoes', array('scorm' => $scorm->id));
     }
-
-    scorm_grade_item_delete($scorm);
-
-    // We must delete the module record after we delete the grade item.
     if (! $DB->delete_records('scorm', array('id' => $scorm->id))) {
         $result = false;
     }
@@ -331,6 +327,8 @@ function scorm_delete_instance($id) {
         $result = false;
     }*/
 
+    scorm_grade_item_delete($scorm);
+
     return $result;
 }
 
@@ -355,11 +353,7 @@ function scorm_user_outline($course, $user, $mod, $scorm) {
     if (!empty($grades->items[0]->grades)) {
         $grade = reset($grades->items[0]->grades);
         $result = new stdClass();
-        if (!$grade->hidden || has_capability('moodle/grade:viewhidden', context_course::instance($course->id))) {
-            $result->info = get_string('grade') . ': '. $grade->str_long_grade;
-        } else {
-            $result->info = get_string('grade') . ': ' . get_string('hidden', 'grades');
-        }
+        $result->info = get_string('grade') . ': '. $grade->str_long_grade;
 
         // Datesubmitted == time created. dategraded == time modified or time overridden
         // if grade was last modified by the user themselves use date graded. Otherwise use date submitted.
@@ -407,13 +401,9 @@ function scorm_user_complete($course, $user, $mod, $scorm) {
     $grades = grade_get_grades($course->id, 'mod', 'scorm', $scorm->id, $user->id);
     if (!empty($grades->items[0]->grades)) {
         $grade = reset($grades->items[0]->grades);
-        if (!$grade->hidden || has_capability('moodle/grade:viewhidden', context_course::instance($course->id))) {
-            echo $OUTPUT->container(get_string('grade').': '.$grade->str_long_grade);
-            if ($grade->str_feedback) {
-                echo $OUTPUT->container(get_string('feedback').': '.$grade->str_feedback);
-            }
-        } else {
-            echo $OUTPUT->container(get_string('grade') . ': ' . get_string('hidden', 'grades'));
+        echo $OUTPUT->container(get_string('grade').': '.$grade->str_long_grade);
+        if ($grade->str_feedback) {
+            echo $OUTPUT->container(get_string('feedback').': '.$grade->str_feedback);
         }
     }
 
@@ -1689,31 +1679,18 @@ function scorm_refresh_events($courseid = 0, $instance = null, $cm = null) {
  *
  * @param calendar_event $event
  * @param \core_calendar\action_factory $factory
- * @param int $userid User id override
  * @return \core_calendar\local\event\entities\action_interface|null
  */
 function mod_scorm_core_calendar_provide_event_action(calendar_event $event,
-                                                      \core_calendar\action_factory $factory, $userid = null) {
-    global $CFG, $USER;
+                                                      \core_calendar\action_factory $factory) {
+    global $CFG;
 
     require_once($CFG->dirroot . '/mod/scorm/locallib.php');
 
-    if (empty($userid)) {
-        $userid = $USER->id;
-    }
+    $cm = get_fast_modinfo($event->courseid)->instances['scorm'][$event->instance];
 
-    $cm = get_fast_modinfo($event->courseid, $userid)->instances['scorm'][$event->instance];
-
-    if (has_capability('mod/scorm:viewreport', $cm->context, $userid)) {
+    if (has_capability('mod/scorm:viewreport', $cm->context)) {
         // Teachers do not need to be reminded to complete a scorm.
-        return null;
-    }
-
-    $completion = new \completion_info($cm->get_course());
-
-    $completiondata = $completion->get_data($cm, false, $userid);
-
-    if ($completiondata->completionstate != COMPLETION_INCOMPLETE) {
         return null;
     }
 
@@ -1728,7 +1705,7 @@ function mod_scorm_core_calendar_provide_event_action(calendar_event $event,
     $scorm = (object)($customdata + ['timeclose' => 0, 'timeopen' => 0]);
 
     // Check that the SCORM activity is open.
-    list($actionable, $warnings) = scorm_get_availability_status($scorm, false, null, $userid);
+    list($actionable, $warnings) = scorm_get_availability_status($scorm);
 
     return $factory->create_instance(
         get_string('enter', 'scorm'),

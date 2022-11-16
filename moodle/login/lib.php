@@ -355,21 +355,18 @@ function core_login_validate_forgot_password_data($data) {
         if (!validate_email($data['email'])) {
             $errors['email'] = get_string('invalidemail');
 
+        } else if ($DB->count_records('user', array('email' => $data['email'])) > 1) {
+            $errors['email'] = get_string('forgottenduplicate');
+
         } else {
-            try {
-                $user = get_complete_user_data('email', $data['email'], null, true);
+            if ($user = get_complete_user_data('email', $data['email'])) {
                 if (empty($user->confirmed)) {
                     send_confirmation_email($user);
                     $errors['email'] = get_string('confirmednot');
                 }
-            } catch (dml_missing_record_exception $missingexception) {
-                // User not found. Show error when $CFG->protectusernames is turned off.
-                if (empty($CFG->protectusernames)) {
-                    $errors['email'] = get_string('emailnotfound');
-                }
-            } catch (dml_multiple_records_exception $multipleexception) {
-                // Multiple records found. Ask the user to enter a username instead.
-                $errors['email'] = get_string('forgottenduplicate');
+            }
+            if (!$user and empty($CFG->protectusernames)) {
+                $errors['email'] = get_string('emailnotfound');
             }
         }
 

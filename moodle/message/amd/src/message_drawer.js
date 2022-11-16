@@ -34,8 +34,7 @@ define(
     'core_message/message_drawer_view_settings',
     'core_message/message_drawer_router',
     'core_message/message_drawer_routes',
-    'core_message/message_drawer_events',
-    'core/pending',
+    'core_message/message_drawer_events'
 ],
 function(
     $,
@@ -50,8 +49,7 @@ function(
     ViewSettings,
     Router,
     Routes,
-    Events,
-    Pending
+    Events
 ) {
 
     var SELECTORS = {
@@ -205,22 +203,6 @@ function(
             show(root);
         });
 
-        // These are theme-specific to help us fix random behat fails.
-        // These events target those events defined in BS3 and BS4 onwards.
-        root.on('hide.bs.collapse', '.collapse', function(e) {
-            var pendingPromise = new Pending();
-            $(e.target).one('hidden.bs.collapse', function() {
-                pendingPromise.resolve();
-            });
-        });
-
-        root.on('show.bs.collapse', '.collapse', function(e) {
-            var pendingPromise = new Pending();
-            $(e.target).one('shown.bs.collapse', function() {
-                pendingPromise.resolve();
-            });
-        });
-
         PubSub.subscribe(Events.HIDE, function() {
             hide(root);
         });
@@ -246,11 +228,6 @@ function(
         PubSub.subscribe(Events.SHOW_SETTINGS, function() {
             show(root);
             Router.go(Routes.VIEW_SETTINGS);
-        });
-
-        PubSub.subscribe(Events.SHOW_CONTACT_REQUESTS, function() {
-            show(root);
-            Router.go(Routes.VIEW_CONTACTS, 'requests');
         });
 
         PubSub.subscribe(Events.PREFERENCES_UPDATED, function(preferences) {

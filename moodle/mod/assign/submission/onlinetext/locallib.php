@@ -232,9 +232,6 @@ class assign_submission_onlinetext extends assign_submission_plugin {
         if (!empty($submission->userid) && ($submission->userid != $USER->id)) {
             $params['relateduserid'] = $submission->userid;
         }
-        if ($this->assignment->is_blind_marking()) {
-            $params['anonymous'] = 1;
-        }
         $event = \assignsubmission_onlinetext\event\assessable_uploaded::create($params);
         $event->trigger();
 
@@ -580,17 +577,12 @@ class assign_submission_onlinetext extends assign_submission_plugin {
     public function is_empty(stdClass $submission) {
         $onlinetextsubmission = $this->get_onlinetext_submission($submission->id);
         $wordcount = 0;
-        $hasinsertedresources = false;
 
         if (isset($onlinetextsubmission->onlinetext)) {
             $wordcount = count_words(trim($onlinetextsubmission->onlinetext));
-            // Check if the online text submission contains video, audio or image elements
-            // that can be ignored and stripped by count_words().
-            $hasinsertedresources = preg_match('/<\s*((video|audio)[^>]*>(.*?)<\s*\/\s*(video|audio)>)|(img[^>]*>(.*?))/',
-                    trim($onlinetextsubmission->onlinetext));
         }
 
-        return $wordcount == 0 && !$hasinsertedresources;
+        return $wordcount == 0;
     }
 
     /**
@@ -607,17 +599,12 @@ class assign_submission_onlinetext extends assign_submission_plugin {
             return true;
         }
         $wordcount = 0;
-        $hasinsertedresources = false;
 
         if (isset($data->onlinetext_editor['text'])) {
             $wordcount = count_words(trim((string)$data->onlinetext_editor['text']));
-            // Check if the online text submission contains video, audio or image elements
-            // that can be ignored and stripped by count_words().
-            $hasinsertedresources = preg_match('/<\s*((video|audio)[^>]*>(.*?)<\s*\/\s*(video|audio)>)|(img[^>]*>(.*?))/',
-                    trim((string)$data->onlinetext_editor['text']));
         }
 
-        return $wordcount == 0 && !$hasinsertedresources;
+        return $wordcount == 0;
     }
 
     /**

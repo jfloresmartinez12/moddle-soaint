@@ -279,7 +279,6 @@ if (isset($mode)) {
     $url->param('mode', $mode);
 }
 $PAGE->set_url($url);
-$PAGE->force_settings_menu();
 
 if (!empty($CFG->enablerssfeeds) && !empty($CFG->glossary_enablerssfeeds)
     && $glossary->rsstype && $glossary->rssarticles) {
